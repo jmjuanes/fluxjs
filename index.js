@@ -197,13 +197,10 @@ var prepare_cmd = function(cmd, obj)
 };
 
 //Remove the temporal files
-var remove_temporals = function(cb)
+flux.clear = function(files, cb)
 {
-  //Save this
-  var self = this;
-
-  //Get all the temporal files
-  var files_keys = Object.keys(this.temporals);
+  //Get all the files to delete
+  var files_keys = Object.keys(files);
 
   //Method to remove all temporal files
   var rm_temp = function(index)
@@ -216,7 +213,7 @@ var remove_temporals = function(cb)
     }
 
     //Get the file path
-    var file = self.temporals[files_keys[index]];
+    var file = files[files_keys[index]];
 
     //Check if temporal file exists
     return pstat.isFile(file, function(exists)
