@@ -6,8 +6,11 @@ var pstat = require('pstat');
 var mkdirp = require('mkdirp');
 var log = require('logty');
 
+//Initialize the flux object
+var flux = {};
+
 //Generate a new flux object
-module.exports.init = function(wd)
+flux.init = function(wd)
 {
   //Initialize the flux object
   var obj = { wd: process.cwd(), commands: [], variables: {} };
@@ -26,7 +29,7 @@ module.exports.init = function(wd)
 };
 
 //Run a flux object
-module.exports.run = function(obj_original, cb)
+flux.run = function(obj_original, cb)
 {
   //Check for no object
   if(typeof obj_original !== 'object')
@@ -46,7 +49,7 @@ module.exports.run = function(obj_original, cb)
   var logs = [];
 
   //Parse the flux object
-  var obj = parse_obj(obj_original, logs);
+  var obj = flux.parse(obj_original, logs);
 
   //Create thw working directory
   return mkdirp(obj.wd, '0777', function(error)
@@ -100,7 +103,7 @@ module.exports.run = function(obj_original, cb)
 };
 
 //Parse the flux object
-var parse_obj = function(obj)
+flux.parse = function(obj)
 {
   //Initialize the new object
   var new_obj = { wd: process.cwd(), commands: [], variables: {}, options: {} };
@@ -240,3 +243,6 @@ var remove_temporals = function(cb)
   //Remove the first file
   return rm_temp(0);
 };
+
+//Exports to node
+module.exports = flux;
