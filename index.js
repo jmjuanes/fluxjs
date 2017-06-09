@@ -45,7 +45,7 @@ module.exports.run = function(obj_original, cb)
   //Initialize the logs object
   var logs = [];
 
-  //Parse the fulx object
+  //Parse the flux object
   var obj = parse_obj(obj_original, logs);
 
   //Create thw working directory
