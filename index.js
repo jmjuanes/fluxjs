@@ -1,10 +1,14 @@
 //Import dependencies
 var fs = require('fs');
 var path = require('path');
-var exec = require('child_process').exec;
 var pstat = require('pstat');
 var mkdirp = require('mkdirp');
 var log = require('logty');
+
+//Import flux libs
+var flux_commands = require('./lib/commands.js');
+var flux_files = require('./lib/files.js');
+var flux_options = require('./lib/options.js');
 
 //Initialize the flux object
 var flux = {};
@@ -19,7 +23,7 @@ flux.init = function(wd)
   obj = Object.assign(obj, { input: {}, output: {}, temp: {}, binaries: {} });
 
   //Initialize the options
-  obj.options = { clear_temp: false, encoding: 'utf8', timeout: 0, max_buffer: 200*1024 };
+  obj.options = flux_options.init();
 
   //Check the current working directory
   if(typeof wd === 'string'){ obj.wd = path.resolve(obj.wd, wd); }
@@ -32,18 +36,10 @@ flux.init = function(wd)
 flux.run = function(obj_original, cb)
 {
   //Check for no object
-  if(typeof obj_original !== 'object')
-  {
-    //Throw the error
-    throw new Error('No Flux object provided');
-  }
+  if(typeof obj_original !== 'object'){ throw new Error('No Flux object provided'); }
 
   //Check for no callback function
-  if(typeof cb !== 'function')
-  {
-    //Throw the new error
-    throw new Error('No callback method provided');
-  }
+  if(typeof cb !== 'function'){ throw new Error('No callback method provided'); }
 
   //Initialize the logs object
   var logs = [];
@@ -57,6 +53,27 @@ flux.run = function(obj_original, cb)
     //Check for error
     if(error){ return cb(error, logs, obj); }
 
+    //Finish running
+    var run_end = function(error)
+    {
+      //Check the clear temporal files option
+      if(obj.options.clear_temp === true)
+      {
+        //Clear the temporal files
+        return flux_files.remove(obj.temp, function(error_temp)
+        {
+          //Check the error temporal
+          error = (error === null) ? error_temp : error;
+
+          //Do the callback
+          return cb(error, logs, obj);
+        });
+      }
+
+      //Do the callback
+      return cb(error, logs, obj);
+    };
+
     //Run each command
     var run_cmd = function(index)
     {
@@ -64,32 +81,26 @@ flux.run = function(obj_original, cb)
       if(index >= obj.commands.length)
       {
         //Do the callback
-        return cb(null);
+        return run_end(null);
       }
 
       //Get the command
-      var cmd = prepare_cmd(obj.commands[index], obj);
-
-      //Initialize the command options
-      var cmd_opt = { cwd: obj.wd, encoding: obj.options.encoding, timeout: obj.options.timeout };
+      var cmd = flux_commands.parse(obj.commands[index], obj);
 
       //Display in console
       console.log(cmd);
 
-      //Get the start time
-      var time_start = Date.now();
-
       //Run the command
-      return exec(cmd, cmd_opt, function(error, stdout, stderr)
+      return flux_commands.exec(cmd, obj, function(error, cmd_logs)
       {
-        //Get the execution time end
-        var time_end = Date.now();
+        //Concatenate the logs
+        logs = logs.concat(cmd_logs);
 
         //Check for error
         if(error)
         {
           //Do the callback with the error
-          return cb(error);
+          return run_end(error);
         }
 
         //Next command
@@ -103,7 +114,7 @@ flux.run = function(obj_original, cb)
 };
 
 //Parse the flux object
-flux.parse = function(obj)
+flux.parse = function(obj, logs)
 {
   //Initialize the new object
   var new_obj = { wd: process.cwd(), commands: [], variables: {}, options: {} };
@@ -117,24 +128,8 @@ flux.parse = function(obj)
   //Parse the files
   ['input','output','temp','binaries'].forEach(function(item)
   {
-    //Initialize the new object
-    new_obj[item] = {};
-
-    //Check if the item is defined
-    if(typeof obj[item] !== 'object'){ return; }
-
-    //Read all the keys in the object
-    for(var key in obj[item])
-    {
-      //Get the value
-      var value = obj[item][key];
-
-      //Check for string
-      if(typeof value !== 'string'){ continue; }
-
-      //Save the key
-      new_obj[item][key] = path.resolve(new_obj.wd, value);
-    }
+    //Parse the files
+    new_obj[item] = flux_files.parse(obj[item], obj.wd);
   });
 
   //Parse the commands
@@ -146,99 +141,11 @@ flux.parse = function(obj)
   //Check the options
   if(typeof obj.options !== 'object'){ obj.options = {}; }
 
-  //Check the clear temporal files option
-  if(typeof obj.options.clear_temp === 'boolean'){ new_obj.options.clear_temp = obj.options.clear_temp; }
+  //Parse the options
+  new_obj.options = flux_options.parse(obj.options);
 
   //Return the parsed object
   return new_obj;
-};
-
-
-//Prepre the command
-var prepare_cmd = function(cmd, obj)
-{
-  //Replace in the command and return the new generated command
-  return cmd.replace(/{{([^{}]+)}}/g, function(match, found)
-  {
-    //Parse the found string
-    var pattern = found.trim().split('.');
-
-    //Check the length
-    if(pattern.length < 2){ return match; }
-
-    //Get the object type
-    var obj_type = pattern[0].trim().toLowerCase();
-
-    //Get the object key
-    var obj_key = pattern[1].trim();
-
-    //Get the value
-    var value = obj[obj_type][obj_key];
-
-    //Check if value exists and is a string
-    if(typeof value === 'string')
-    {
-      //Check for file or binary
-      if(['input', 'output', 'temp', 'binaries'].indexOf(obj_type) !== -1)
-      {
-        //Return the file path
-        return path.resolve(obj.wd, value);
-      }
-      else
-      {
-        //Return the value
-        return value;
-      }
-    }
-
-    //Default, return the original match
-    return match;
-  });
-};
-
-//Remove the temporal files
-flux.clear = function(files, cb)
-{
-  //Get all the files to delete
-  var files_keys = Object.keys(files);
-
-  //Method to remove all temporal files
-  var rm_temp = function(index)
-  {
-    //Check the index
-    if(index >= files_keys.length)
-    {
-      //Do the callback without error
-      return cb(null);
-    }
-
-    //Get the file path
-    var file = files[files_keys[index]];
-
-    //Check if temporal file exists
-    return pstat.isFile(file, function(exists)
-    {
-      //Check if temporal file exists
-      if(exists === false)
-      {
-        //Continue with the next file
-        return rm_temp(index + 1);
-      }
-
-      //Remove the file
-      return fs.unlink(file, function(error)
-      {
-        //Check the error
-        if(error){ return cb(error); }
-
-        //Continue with the next temporal file
-        return rm_temp(index + 1);
-      });
-    });
-  };
-
-  //Remove the first file
-  return rm_temp(0);
 };
 
 //Exports to node
