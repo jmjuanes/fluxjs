@@ -108,6 +108,9 @@ var parse_obj = function(obj)
   //Check the working directory
   if(typeof obj.wd === 'string'){ new_obj.wd = path.resolve(process.cwd(), obj.wd); }
 
+  //Add the last / at the current working directory
+  obj.wd = path.join(obj.wd, './');
+
   //Parse the files
   ['input','output','temp','binaries'].forEach(function(item)
   {
