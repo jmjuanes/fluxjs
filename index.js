@@ -233,6 +233,10 @@ flux.prototype.run = function()
           //Set running as false
           self.status.running = false;
 
+          //Display the error message
+          log.error('Error running command ' + index);
+          log.error(error.message);
+
           //Emit the error event and exit
           return self.emit('error', error);
         }
