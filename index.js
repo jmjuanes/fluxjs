@@ -46,6 +46,9 @@ util.inherits(flux, events);
 //Parse a flux object
 flux.prototype.parse = function(obj)
 {
+  //check the object
+  if(typeof obj !== 'object'){ return this; }
+  
   //Check the working directory
   if(typeof obj.wd === 'string')
   {
