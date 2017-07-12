@@ -49,6 +49,9 @@ flux.prototype.parse = function(obj)
   //check the object
   if(typeof obj !== 'object'){ return this; }
 
+  //Save this
+  var self = this;
+
   //Check the working directory
   if(typeof obj.wd === 'string')
   {
@@ -59,11 +62,11 @@ flux.prototype.parse = function(obj)
     this.wd = path.join(this.wd, './');
   }
 
-  //Parse the files
+  //Iterate over all the files list
   ['input','output','temp','binaries'].forEach(function(item)
   {
-    //Parse the files
-    new_obj[item] = flux_files.parse(obj[item], obj.wd);
+    //Save the files
+    Object.assign(self[item], obj[item]);
   });
 
   //Parse the commands
