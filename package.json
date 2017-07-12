@@ -7,5 +7,10 @@
   "repository": { "type": "git", "url": "https://github.com/jmjuanes/fluxjs.git" },
   "main": "index.js",
   "keywords": [ "flux", "pipe", "flow", "commands", "cmd", "exec" ],
-  "dependencies": { "pstat": "1.0.2", "logty": "0.2.0", "mkdirp": "0.5.1" }
+  "dependencies":
+  {
+    "pstat": "1.0.2",
+    "logty": "0.2.0",
+    "mkdirp": "0.5.1"
+  }
 }
