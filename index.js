@@ -48,7 +48,7 @@ flux.prototype.parse = function(obj)
 {
   //check the object
   if(typeof obj !== 'object'){ return this; }
-  
+
   //Check the working directory
   if(typeof obj.wd === 'string')
   {
@@ -97,12 +97,6 @@ flux.prototype.run = function()
   //Save this
   var self = this;
 
-  //Set workflow as running
-  self.status.running = true;
-
-  //Save the run start time
-  var run_start = Date.now();
-
   //Log write fake stream
   var log_writer = function(msg)
   {
@@ -115,6 +109,22 @@ flux.prototype.run = function()
 
   //Initialize the log object
   var log = new logty('', { write: log_writer });
+
+  //Check the number of commands to run
+  if(self.commands.length === 0)
+  {
+    //Display error in logs
+    log.fatal('No commands to run in workflow');
+
+    //Emit the error event
+    return self.emit('error', new Error('No commands to run in workflow'));
+  }
+
+  //Set workflow as running
+  self.status.running = true;
+
+  //Save the run start time
+  var run_start = Date.now();
 
   //Display in console
   log.info('Working directory: ' + self.wd);
