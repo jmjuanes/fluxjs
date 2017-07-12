@@ -209,7 +209,7 @@ flux.prototype.run = function()
       log.notice('$ ' + cmd);
 
       //Run the command
-      return flux_commands.exec(cmd, self.options, function(error, cmd_time, cmd_out, cmd_err)
+      return flux_commands.exec(cmd, self.wd, self.options, function(error, cmd_time, cmd_out, cmd_err)
       {
         //Check for error
         if(error)
