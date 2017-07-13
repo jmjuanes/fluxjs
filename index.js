@@ -200,7 +200,7 @@ workfly.prototype.run = function()
       var list = utily.object.values(self.temp);
 
       //Clear the temporal files
-      return utily.files.rm(list, function(error)
+      return utily.file.rm(list, function(error)
       {
         //Check the error
         return (error) ? self.emit('error', error) : cb();
