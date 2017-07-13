@@ -9,7 +9,7 @@ var events = require('events');
 var utily = require('utily');
 
 //Import workfly libs
-var workfly_commands = require('./lib/commands.js');
+var workfly_cmd = require('./lib/cmd.js');
 var workfly_parse = require('./lib/parse.js');
 
 //Initialize the options object
