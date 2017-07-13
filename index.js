@@ -7,13 +7,13 @@ var logty = require('logty');
 var util = require('util');
 var events = require('events');
 
-//Import flux libs
-var flux_commands = require('./lib/commands.js');
-var flux_files = require('./lib/files.js');
-var flux_options = require('./lib/options.js');
+//Import workfly libs
+var workfly_commands = require('./lib/commands.js');
+var workfly_files = require('./lib/files.js');
+var workfly_options = require('./lib/options.js');
 
-//Initialize the flux object
-var flux = function(obj)
+//Initialize the workfly object
+var workfly = function(obj)
 {
   //Initialize the working directory
   this.wd = path.join(process.cwd(), './');
@@ -27,8 +27,8 @@ var flux = function(obj)
   //Initialize the variables list
   this.variables = {};
 
-  //Initialize the flux options
-  this.options = flux_options.init();
+  //Initialize the workfly options
+  this.options = workfly_options.init();
 
   //Workflow status
   this.status = { running: false, aborted: false, completed: false };
@@ -36,15 +36,15 @@ var flux = function(obj)
   //Inherit to the event emitter constructor
   events.call(this);
 
-  //Parse the flux object
+  //Parse the workfly object
   return this.parse(obj);
 };
 
-//Inherits EventEmitter to flux
-util.inherits(flux, events);
+//Inherits EventEmitter to workfly
+util.inherits(workfly, events);
 
-//Parse a flux object
-flux.prototype.parse = function(obj)
+//Parse a workfly object
+workfly.prototype.parse = function(obj)
 {
   //check the object
   if(typeof obj !== 'object'){ return this; }
@@ -87,7 +87,7 @@ flux.prototype.parse = function(obj)
   if(typeof obj.options === 'object')
   {
     //Parse the options
-    this.options = flux_options.parse(this.options, obj.options);
+    this.options = workfly_options.parse(this.options, obj.options);
   }
 
   //Return this
@@ -95,7 +95,7 @@ flux.prototype.parse = function(obj)
 };
 
 //Run
-flux.prototype.run = function()
+workfly.prototype.run = function()
 {
   //Save this
   var self = this;
@@ -136,7 +136,7 @@ flux.prototype.run = function()
   ['input','output','temp','binaries'].forEach(function(item)
   {
     //Parse the files list
-    self[item] = flux_files.parse(self.wd, self[item]);
+    self[item] = workfly_files.parse(self.wd, self[item]);
   });
 
   //Create the working directory
@@ -163,7 +163,7 @@ flux.prototype.run = function()
       }
 
       //Clear the temporal files
-      return flux_files.remove(self.temp, function(error)
+      return workfly_files.remove(self.temp, function(error)
       {
         //Check the error
         if(error)
@@ -216,7 +216,7 @@ flux.prototype.run = function()
       }
 
       //Get the command
-      var cmd = flux_commands.parse(self.commands[index], self);
+      var cmd = workfly_commands.parse(self.commands[index], self);
 
       //Display in logs
       log.notice('Running command ' + index);
@@ -225,7 +225,7 @@ flux.prototype.run = function()
       log.notice('$ ' + cmd);
 
       //Run the command
-      return flux_commands.exec(cmd, self.wd, self.options, function(error, cmd_time, cmd_out, cmd_err)
+      return workfly_commands.exec(cmd, self.wd, self.options, function(error, cmd_time, cmd_out, cmd_err)
       {
         //Check for error
         if(error)
@@ -258,11 +258,11 @@ flux.prototype.run = function()
 };
 
 //Abort the workflow
-flux.prototype.abort = function()
+workfly.prototype.abort = function()
 {
   //Abort the workflow when the command that is running now is finished
   this.status.aborted = true;
 };
 
 //Exports to node
-module.exports = flux;
+module.exports = workfly;
