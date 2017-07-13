@@ -11,8 +11,14 @@ var utily = require('utily');
 //Import workfly libs
 var workfly_commands = require('./lib/commands.js');
 var workfly_files = require('./lib/files.js');
-var workfly_options = require('./lib/options.js');
 var workfly_parse = require('./lib/parse.js');
+
+//Initialize the options object
+var options = {};
+options.verbose = false; //Print log messages in console
+options.encoding = 'utf8'; //Default encoding
+options.timeout = 0; //Command timeout execution value
+options.max_buffer = 200*1024; //Command max buffer value
 
 //Initialize the workfly object
 var workfly = function(obj)
@@ -30,7 +36,7 @@ var workfly = function(obj)
   this.variables = {};
 
   //Initialize the workfly options
-  this.options = workfly_options.init();
+  this.options = Object.assign({}, options);
 
   //Workflow status
   this.status = { running: false, aborted: false, completed: false };
@@ -89,14 +95,14 @@ workfly.prototype.parse = function(obj)
   if(typeof obj.options === 'object')
   {
     //Parse the options
-    this.options = workfly_options.parse(this.options, obj.options);
+    this.options = workfly_parse.options(this.options, obj.options);
   }
 
   //Return this
   return this;
 };
 
-//Run
+//Run the workflow
 workfly.prototype.run = function()
 {
   //Save this
