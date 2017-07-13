@@ -188,6 +188,9 @@ workfly.prototype.run = function()
         //Set running as false
         self.status.running = false;
 
+        //Display in console
+        log.notice('Workflow aborted');
+
         //Emit the abort event
         return self.emit('abort', index);
       }
