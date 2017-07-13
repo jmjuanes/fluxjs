@@ -189,15 +189,22 @@ workfly.prototype.run = function()
     //Clear the temporal files
     var clear_temp = function(cb)
     {
+      //Get the list of temporal files
+      var list = utily.object.values(self.temp);
+
       //Check the clear temporal files option
-      if(self.options.clear_temp === false)
+      if(self.options.clear_temp === false || list.length === 0)
       {
         //Do the callback without remove the temporal files
         return cb();
       }
 
-      //Get the list of temporal files
-      var list = utily.object.values(self.temp);
+      //Display in log the path of each file that will be removed
+      list.forEach(function(file)
+      {
+        //Display in logs
+        log.info('Remove temporal file : ' + file);
+      });
 
       //Clear the temporal files
       return utily.file.rm(list, function(error)
