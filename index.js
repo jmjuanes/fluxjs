@@ -243,7 +243,7 @@ workfly.prototype.run = function()
           var run_end = Date.now();
 
           //Display in logs
-          log.info('Run completed in ' + (run_end - run_start) + ' ms');
+          log.notice('Run completed in ' + (run_end - run_start) + ' ms');
 
           //Set status as completed
           self.status.completed = true;
