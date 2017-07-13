@@ -6,11 +6,13 @@ var mkdirp = require('mkdirp');
 var logty = require('logty');
 var util = require('util');
 var events = require('events');
+var utily = require('utily');
 
 //Import workfly libs
 var workfly_commands = require('./lib/commands.js');
 var workfly_files = require('./lib/files.js');
 var workfly_options = require('./lib/options.js');
+var workfly_parse = require('./lib/parse.js');
 
 //Initialize the workfly object
 var workfly = function(obj)
@@ -133,11 +135,29 @@ workfly.prototype.run = function()
   log.info('Working directory: ' + self.wd);
 
   //Parse all the files
-  ['input','output','temp','binaries'].forEach(function(item)
+  ['input','output','temp'].forEach(function(type)
   {
+    //Display the files information
+    log.info('Using the following ' + type + ' files');
+
     //Parse the files list
-    self[item] = workfly_files.parse(self.wd, self[item]);
+    self[type] = workfly_parse.files(self.wd, self[type], log);
   });
+
+  //Binaries list
+  if(utily.object.keys(self.binaries).length !== 0)
+  {
+    //Display a binaries information
+    log.info('Using the following binaries list');
+
+    //Parse the binaries list
+    self.binaries = workfly_parse.binaries(self.binaries, log);
+  }
+  else
+  {
+    //Display a warning in console
+    log.warning('No binaries paths provided');
+  }
 
   //Create the working directory
   return mkdirp(self.wd, '0777', function(error)
