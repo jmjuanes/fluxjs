@@ -40,7 +40,7 @@ var flux = function(obj)
   return this.parse(obj);
 };
 
-//Inherits EventEmitter to fluxjs
+//Inherits EventEmitter to flux
 util.inherits(flux, events);
 
 //Parse a flux object
