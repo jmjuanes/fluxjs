@@ -10,7 +10,6 @@ var utily = require('utily');
 
 //Import workfly libs
 var workfly_commands = require('./lib/commands.js');
-var workfly_files = require('./lib/files.js');
 var workfly_parse = require('./lib/parse.js');
 
 //Initialize the options object
@@ -19,6 +18,7 @@ options.verbose = false; //Print log messages in console
 options.encoding = 'utf8'; //Default encoding
 options.timeout = 0; //Command timeout execution value
 options.max_buffer = 200*1024; //Command max buffer value
+options.clear_temp = false; //Remove temporal files at end
 
 //Initialize the workfly object
 var workfly = function(obj)
@@ -188,20 +188,14 @@ workfly.prototype.run = function()
         return cb();
       }
 
+      //Get the list of temporal files
+      var list = utily.object.values(self.temp);
+
       //Clear the temporal files
-      return workfly_files.remove(self.temp, function(error)
+      return utily.files.rm(list, function(error)
       {
         //Check the error
-        if(error)
-        {
-          //Emit the error event
-          return self.emit('error', error);
-        }
-        else
-        {
-          //Do the callback
-          return cb();
-        }
+        return (error) ? self.emit('error', error) : cb();
       });
     };
 
