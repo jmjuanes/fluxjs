@@ -121,16 +121,6 @@ workfly.prototype.run = function()
   //Initialize the log object
   var log = new logty('', { write: log_writer });
 
-  //Check the number of commands to run
-  if(self.commands.length === 0)
-  {
-    //Display error in logs
-    log.fatal('No commands to run in workflow');
-
-    //Emit the error event
-    return self.emit('error', new Error('No commands to run in workflow'));
-  }
-
   //Set workflow as running
   self.status.running = true;
 
@@ -163,6 +153,24 @@ workfly.prototype.run = function()
   {
     //Display a warning in console
     log.warning('No binaries paths provided');
+  }
+
+  //Parse the commands list
+  self.commands = workfly_parse.commands(self.commands);
+
+  //Check the number of commands to run
+  if(self.commands.length === 0)
+  {
+    //Display error in logs
+    log.fatal('No commands to run in workflow');
+
+    //Emit the error event
+    return self.emit('error', new Error('No commands to run in workflow'));
+  }
+  else
+  {
+    //Display in logs
+    log.info('Detected ' + self.commands.length + ' commands to execute');
   }
 
   //Create the working directory
@@ -239,7 +247,7 @@ workfly.prototype.run = function()
       }
 
       //Get the command
-      var cmd = workfly_commands.parse(self.commands[index], self);
+      var cmd = workfly_cmd.parse(self.commands[index], self);
 
       //Display in logs
       log.notice('Running command ' + index);
@@ -248,7 +256,7 @@ workfly.prototype.run = function()
       log.notice('$ ' + cmd);
 
       //Run the command
-      return workfly_commands.exec(cmd, self.wd, self.options, function(error, cmd_time, cmd_out, cmd_err)
+      return workfly_cmd.exec(cmd, self.wd, self.options, function(error, cmd_time, cmd_out, cmd_err)
       {
         //Check for error
         if(error)
@@ -274,6 +282,9 @@ workfly.prototype.run = function()
         return run_cmd(index + 1);
       });
     };
+
+    //Display in logs
+    log.info('Starting workflow');
 
     //Initialize the commands queue
     return run_cmd(0);
