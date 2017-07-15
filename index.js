@@ -29,6 +29,9 @@ var workfly = function(name, obj)
   //Save the workflow name
   this.name = (typeof name === 'string') ? name.trim() : '';
 
+  //Get the flow object
+  var flow_obj = (typeof name === 'object') ? name : obj;
+
   //Initialize the working directory
   this.wd = path.join(process.cwd(), './');
 
@@ -60,7 +63,7 @@ var workfly = function(name, obj)
   events.call(this);
 
   //Parse the workfly object
-  this._parse(obj);
+  this._parse(flow_obj);
 
   //Run the workflow
   setTimeout(self._run, 100);
