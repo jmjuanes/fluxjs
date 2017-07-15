@@ -367,8 +367,8 @@ workfly.prototype.resume = function()
   //Resume the workflow
   this._paused = false;
 
-  //Check if workflow is aborted
-  if(this._aborted === true ){ return; }
+  //Check if workflow is aborted or completed
+  if(this._aborted === true || this._completed === true ){ return; }
 
   //Check if workflow running
   if(this._running === true){ return; }
