@@ -107,6 +107,9 @@ workfly.prototype._parse = function(obj)
   //Iterate over all the files list
   ['input','output','temp','binaries'].forEach(function(item)
   {
+    //Check for object
+    if(typeof obj[item] !== 'object'){ return; }
+    
     //Save the files
     Object.assign(self[item], obj[item]);
   });
