@@ -23,14 +23,8 @@ options.clear_temp = false; //Remove temporal files at end
 //Initialize the workfly object
 var workfly = function(name, obj)
 {
-  //Save this
-  var self = this;
-
   //Save the workflow name
   this.name = (typeof name === 'string') ? name.trim() : '';
-
-  //Get the flow object
-  var flow_obj = (typeof name === 'object') ? name : obj;
 
   //Initialize the working directory
   this.wd = path.join(process.cwd(), './');
@@ -57,19 +51,16 @@ var workfly = function(name, obj)
   Object.assign(this, { _time_start: 0, _time_end: 0 });
 
   //Workflow logger
-  this._log = new logty(this.name, { write: self._log_writer });
+  this._log = new logty(this.name);
 
   //Inherit to the event emitter constructor
   events.call(this);
 
   //Parse the workfly object
-  this._parse(flow_obj);
+  this._parse((typeof name === 'object') ? name : obj);
 
   //Run the workflow
-  setTimeout(self._run, 100);
-
-  //Return this
-  return this;
+  return this._run();
 };
 
 //Inherits EventEmitter to workfly
@@ -192,7 +183,7 @@ workfly.prototype._run = function()
   }
 
   //Create the working directory
-  return mkdirp(self.wd, '0777', function(error)
+  mkdirp(self.wd, '0777', function(error)
   {
     //Check for error
     if(error)
@@ -213,6 +204,9 @@ workfly.prototype._run = function()
     //Initialize the commands queue
     return self._next();
   });
+
+  //Return this
+  return this;
 };
 
 //Run the next command
