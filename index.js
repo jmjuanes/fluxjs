@@ -21,8 +21,14 @@ options.max_buffer = 200*1024; //Command max buffer value
 options.clear_temp = false; //Remove temporal files at end
 
 //Initialize the workfly object
-var workfly = function(obj)
+var workfly = function(name, obj)
 {
+  //Save this
+  var self = this;
+
+  //Save the workflow name
+  this.name = (typeof name === 'string') ? name.trim() : '';
+
   //Initialize the working directory
   this.wd = path.join(process.cwd(), './');
 
@@ -38,21 +44,46 @@ var workfly = function(obj)
   //Initialize the workfly options
   this.options = Object.assign({}, options);
 
-  //Workflow status
-  this.status = { running: false, aborted: false, completed: false };
+  //Initialize the workflow status
+  Object.assign(this, { _completed: false, _running: false, _paused: false, _aborted: false });
+
+  //Workflow command index
+  this._index = -1;
+  
+  //Time start and end 
+  Object.assign(this, { _time_start: 0, _time_end: 0 });
+
+  //Workflow logger
+  this._log = new logty(this.name, { write: self._log_writer });
 
   //Inherit to the event emitter constructor
   events.call(this);
 
   //Parse the workfly object
-  return this.parse(obj);
+  this._parse(obj);
+
+  //Run the workflow
+  setTimeout(self._run, 100);
+
+  //Return this
+  return this;
 };
 
 //Inherits EventEmitter to workfly
 util.inherits(workfly, events);
 
+//Log writer
+workfly.prototype._log_writer = function(msg)
+{
+  //Check the options
+  if(this.options.verbose === false){ return; }
+
+  //Write the log to the stdout
+  process.stdout.write(msg);
+};
+
 //Parse a workfly object
-workfly.prototype.parse = function(obj)
+workfly.prototype._parse = function(obj)
 {
   //check the object
   if(typeof obj !== 'object'){ return this; }
@@ -103,38 +134,19 @@ workfly.prototype.parse = function(obj)
 };
 
 //Run the workflow
-workfly.prototype.run = function()
+workfly.prototype._run = function()
 {
   //Save this
   var self = this;
 
-  //Log write fake stream
-  var log_writer = function(msg)
-  {
-    //Check the options
-    if(self.options.verbose === false){ return; }
-
-    //Write the log to the stdout
-    process.stdout.write(msg);
-  };
-
-  //Initialize the log object
-  var log = new logty('', { write: log_writer });
-
-  //Set workflow as running
-  self.status.running = true;
-
-  //Save the run start time
-  var run_start = Date.now();
-
   //Display in console
-  log.info('Working directory: ' + self.wd);
+  self._log.info('Working directory: ' + self.wd);
 
   //Parse all the files
   ['input','output','temp'].forEach(function(type)
   {
     //Display the files information
-    log.info('Using the following ' + type + ' files');
+    self._log.info('Using the following ' + type + ' files');
 
     //Parse the files list
     self[type] = workfly_parse.files(self.wd, self[type], log);
@@ -144,7 +156,7 @@ workfly.prototype.run = function()
   if(utily.object.keys(self.binaries).length !== 0)
   {
     //Display a binaries information
-    log.info('Using the following binaries list');
+    self._log.info('Using the following binaries list');
 
     //Parse the binaries list
     self.binaries = workfly_parse.binaries(self.binaries, log);
@@ -152,7 +164,7 @@ workfly.prototype.run = function()
   else
   {
     //Display a warning in console
-    log.warning('No binaries paths provided');
+    self._log.warning('No binaries paths provided');
   }
 
   //Parse the commands list
@@ -162,7 +174,7 @@ workfly.prototype.run = function()
   if(self.commands.length === 0)
   {
     //Display error in logs
-    log.fatal('No commands to run in workflow');
+    self._log.fatal('No commands to run in workflow');
 
     //Emit the error event
     return self.emit('error', new Error('No commands to run in workflow'));
@@ -170,7 +182,7 @@ workfly.prototype.run = function()
   else
   {
     //Display in logs
-    log.info('Detected ' + self.commands.length + ' commands to execute');
+    self._log.info('Detected ' + self.commands.length + ' commands to execute');
   }
 
   //Create the working directory
@@ -179,122 +191,159 @@ workfly.prototype.run = function()
     //Check for error
     if(error)
     {
+      //Emit the error event and exit
+      return self.emit('error', error);
+    }
+
+    //Set workflow as running
+    self._running = true;
+
+    //Save the run start time
+    self._time_start = Date.now();
+
+    //Display in logs
+    self._log.info('Starting workflow');
+
+    //Initialize the commands queue
+    return self._next();
+  });
+};
+
+//Run the next command
+workfly.prototype._next = function()
+{
+  //Save this
+  var self = this;
+
+  //Check if workflow is completed
+  if(self._completed === true){ return; }
+
+  //Check if workflow is paused or aborted
+  if(self._paused === true || self._aborted === true)
+  {
+    //Set workflow running as false
+    self._running = false;
+
+    //Check the type
+    if(self._paused === true)
+    {
+      //Print in logs
+      self._log.info('Workflow paused');
+
+      //Emit the paused event
+      return self.emit('pause', self._index);
+    }
+    else
+    {
+      //Print in logs
+      self._log.info('Workflow aborted');
+
+      //Emit the aborted event
+      return self.emit('abort', self._index);
+    }
+  }
+
+  //Set workflow running as true
+  self._running = true;
+
+  //Increment the command index
+  self._index = self._index + 1;
+
+  //Check the state index
+  if(self._index >= self.commands.length)
+  {
+    //Set running as false
+    self._running = false;
+
+    //Clear the temporal files
+    return self._clear_temp(function(error)
+    {
+      //Check the error
+      if(error)
+      {
+        //Emit the error 
+        return self.emit('error', error);
+      }
+
+      //Get the run end time
+      self._time_end = Date.now();
+
+      //Display in logs
+      self._log.notice('Run completed in ' + (self._time_end - self._time_start) + ' ms');
+
+      //Set status as completed
+      self._completed = true;
+
+      //Emit the finish event
+      return self.emit('finish');
+    });
+  }
+
+  //Get the command
+  var cmd = workfly_cmd.parse(self.commands[self._index], self);
+
+  //Display in logs
+  self._log.notice('Running command ' + self._index);
+
+  //Display the command in console
+  self._log.notice('$ ' + cmd);
+
+  //Run the command
+  return workfly_cmd.exec(cmd, self.wd, self.options, function(error, cmd_time, cmd_out, cmd_err)
+  {
+    //Check for error
+    if(error)
+    {
       //Set running as false
-      self.status.running = false;
+      self._running = false;
+
+      //Display the error message
+      self._log.error('Error running command ' + self._index);
+      self._log.error(error.message);
 
       //Emit the error event and exit
       return self.emit('error', error);
     }
 
-    //Clear the temporal files
-    var clear_temp = function(cb)
-    {
-      //Get the list of temporal files
-      var list = utily.object.values(self.temp);
+    //Display the time in logs
+    self._log.notice('Command completed in ' + cmd_time + ' ms');
 
-      //Check the clear temporal files option
-      if(self.options.clear_temp === false || list.length === 0)
-      {
-        //Do the callback without remove the temporal files
-        return cb();
-      }
+    //Emit the command completed event
+    self.emit('command', self._index, cmd, cmd_out, cmd_err);
 
-      //Display in log the path of each file that will be removed
-      list.forEach(function(file)
-      {
-        //Display in logs
-        log.info('Remove temporal file : ' + file);
-      });
+    //Next command
+    return self._next();
+  });
+};
 
-      //Clear the temporal files
-      return utily.file.rm(list, function(error)
-      {
-        //Check the error
-        return (error) ? self.emit('error', error) : cb();
-      });
-    };
+//Clear the temporal files
+workfly.prototype._clear_temp = function(cb)
+{
+  //Save this
+  var self = this;
 
-    //Run each command
-    var run_cmd = function(index)
-    {
-      //Check the aborted status
-      if(self.status.aborted === true)
-      {
-        //Set running as false
-        self.status.running = false;
+  //Get the list of temporal files
+  var list = utily.object.values(self.temp);
 
-        //Display in console
-        log.notice('Workflow aborted');
+  //Check the clear temporal files option
+  if(self.options.clear_temp === false || list.length === 0)
+  {
+    //Do the callback without remove the temporal files
+    return cb(null);
+  }
 
-        //Emit the abort event
-        return self.emit('abort', index);
-      }
-
-      //Check the index
-      if(index >= self.commands.length)
-      {
-        //Set running as false
-        self.status.running = false;
-
-        //Clear the temporal files
-        return clear_temp(function()
-        {
-          //Get the run end time
-          var run_end = Date.now();
-
-          //Display in logs
-          log.notice('Run completed in ' + (run_end - run_start) + ' ms');
-
-          //Set status as completed
-          self.status.completed = true;
-
-          //Emit the finish event
-          return self.emit('finish');
-        });
-      }
-
-      //Get the command
-      var cmd = workfly_cmd.parse(self.commands[index], self);
-
-      //Display in logs
-      log.notice('Running command ' + index);
-
-      //Display the command in console
-      log.notice('$ ' + cmd);
-
-      //Run the command
-      return workfly_cmd.exec(cmd, self.wd, self.options, function(error, cmd_time, cmd_out, cmd_err)
-      {
-        //Check for error
-        if(error)
-        {
-          //Set running as false
-          self.status.running = false;
-
-          //Display the error message
-          log.error('Error running command ' + index);
-          log.error(error.message);
-
-          //Emit the error event and exit
-          return self.emit('error', error);
-        }
-
-        //Display the time in logs
-        log.notice('Command completed in ' + cmd_time + ' ms');
-
-        //Emit the command completed event
-        self.emit('command', index, cmd, cmd_out, cmd_err);
-
-        //Next command
-        return run_cmd(index + 1);
-      });
-    };
-
+  //Display in log the path of each file that will be removed
+  list.forEach(function(file)
+  {
     //Display in logs
-    log.info('Starting workflow');
+    self._log.info('Remove temporal file : ' + file);
+  });
 
-    //Initialize the commands queue
-    return run_cmd(0);
+  //Clear the temporal files
+  return utily.file.rm(list, function(error)
+  {
+    //Do the callback with the error
+    return cb(error);
   });
 };
 
@@ -302,7 +351,36 @@ workfly.prototype.run = function()
 workfly.prototype.abort = function()
 {
   //Abort the workflow when the command that is running now is finished
-  this.status.aborted = true;
+  this._aborted = true;
+};
+
+//Pause the workflow
+workfly.prototype.pause = function()
+{
+  //Pause the workflow
+  this._paused = true;
+};
+
+//Resume the workflow
+workfly.prototype.resume = function()
+{
+  //Resume the workflow
+  this._paused = false;
+
+  //Check if workflow is aborted
+  if(this._aborted === true ){ return; }
+
+  //Check if workflow running
+  if(this._running === true){ return; }
+
+  //Emit the resumed event
+  this.emit('resume');
+
+  //Print in logs
+  this._log.info('Workflow resumed');
+
+  //Continue with the next command
+  return this._next();
 };
 
 //Exports to node
