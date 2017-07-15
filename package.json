@@ -10,7 +10,7 @@
   "dependencies":
   {
     "pstat": "1.0.2",
-    "logty": "0.2.0",
+    "logty": "0.2.1",
     "mkdirp": "0.5.1",
     "utily": "0.0.2"
   }
