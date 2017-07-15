@@ -109,7 +109,7 @@ workfly.prototype._parse = function(obj)
   {
     //Check for object
     if(typeof obj[item] !== 'object'){ return; }
-    
+
     //Save the files
     Object.assign(self[item], obj[item]);
   });
@@ -155,7 +155,7 @@ workfly.prototype._run = function()
     self._log.info('Using the following ' + type + ' files');
 
     //Parse the files list
-    self[type] = workfly_parse.files(self.wd, self[type], log);
+    self[type] = workfly_parse.files(self.wd, self[type], self._log);
   });
 
   //Binaries list
@@ -165,7 +165,7 @@ workfly.prototype._run = function()
     self._log.info('Using the following binaries list');
 
     //Parse the binaries list
-    self.binaries = workfly_parse.binaries(self.binaries, log);
+    self.binaries = workfly_parse.binaries(self.binaries, self._log);
   }
   else
   {
