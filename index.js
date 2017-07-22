@@ -1,7 +1,6 @@
 //Import dependencies
 var fs = require('fs');
 var path = require('path');
-var pstat = require('pstat');
 var mkdirp = require('mkdirp');
 var logty = require('logty');
 var util = require('util');
@@ -340,7 +339,7 @@ workfly.prototype._clear_temp = function(cb)
   });
 
   //Clear the temporal files
-  return utily.file.rm(list, function(error)
+  return utily.fs.unlink(list, function(error)
   {
     //Do the callback with the error
     return cb(error);
