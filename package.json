@@ -9,9 +9,8 @@
   "keywords": [ "workflow", "pipe", "flow", "commands", "cmd", "exec" ],
   "dependencies":
   {
-    "pstat": "1.0.2",
-    "logty": "0.2.1",
+    "logty": "^0.2.1",
     "mkdirp": "0.5.1",
-    "utily": "0.0.2"
+    "utily": "^0.1.2"
   }
 }
