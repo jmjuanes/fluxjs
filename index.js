@@ -221,7 +221,7 @@ workfly.prototype._next = function()
     self._status.running = false;
 
     //Clear the unused files
-    return workfly_file.delete(self._data.file, self.log, function(error)
+    return workfly_file.delete(self._data.file, self._log, function(error)
     {
       //Check the error
       if(error)
