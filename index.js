@@ -202,7 +202,7 @@ workfly.prototype._next = function()
     self._status.running = false;
 
     //Print in log
-    self.log.notice((self._status.paused === true) ? 'Workflow paused' : 'Workflow aborted');
+    self._log.notice((self._status.paused === true) ? 'Workflow paused' : 'Workflow aborted');
 
     //Emit the event
     return self.emit((self._status.paused === true) ? 'pause' : 'abort', self._index);
