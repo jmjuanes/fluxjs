@@ -123,10 +123,13 @@ workfly.prototype.command = function(name, cmd)
 };
 
 //Run the workflow
-workfly.prototype.run = function()
+workfly.prototype.run = function(cb)
 {
   //Save this
   var self = this;
+
+  //Check the callback method
+  if(typeof cb !== 'function'){ cb = function(){ return null; }; }
 
   //Display in console
   self._log.info('Working directory: ' + self._data.wd);
@@ -176,6 +179,9 @@ workfly.prototype.run = function()
 
       //Display in logs
       self._log.info('Starting workflow');
+
+      //Call the run callback method
+      cb(self._data);
 
       //Initialize the commands queue
       return self._next();
