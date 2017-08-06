@@ -64,7 +64,7 @@ workfly.prototype.file = function(name, options)
   var obj = Object.assign({ path: null, ext: '.txt', content: null, delete: false }, options);
 
   //Check the file path
-  if(obj.path !== null)
+  if(obj.path === null)
   {
     //Create the new file path
     obj.path = './' + utily.string.unique() + obj.ext;
