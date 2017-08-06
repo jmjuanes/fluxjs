@@ -147,7 +147,7 @@ workfly.prototype.run = function()
   }
 
   //Create the working directory
-  mkdirp(self._wd, '0777', function(error)
+  mkdirp(self._data.wd, '0777', function(error)
   {
     //Check for error
     if(error)
