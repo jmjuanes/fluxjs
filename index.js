@@ -11,18 +11,14 @@ var utily = require('utily');
 var workfly_cmd = require('./lib/command.js');
 var workfly_file = require('./lib/file.js');
 
-//Initialize the options object
-var options = {};
-options.verbose = false; //Print log messages in console
-options.encoding = 'utf8'; //Default encoding
-options.timeout = 0; //Command timeout execution value
-options.max_buffer = 200*1024; //Command max buffer value
-
 //Initialize the workfly object
 var workfly = function(name, wd, opt)
 {
   //Check the workflow name
   if(typeof name !== 'string'){ throw new Error('No workflow name provided'); }
+
+  //Check the working directory value
+  if(typeof wd === 'undefined'){ wd = process.cwd(); }
 
   //Check the options object
   if(typeof opt !== 'object'){ opt = {}; }
@@ -40,7 +36,7 @@ var workfly = function(name, wd, opt)
   this._commands = [];
 
   //Initialize the workfly options
-  this._options = Object.assign({}, options);
+  this._options = Object.assign({ encoding: 'utf8', verbose: false }, (typeof wd === 'object') ? wd : opt);
 
   //Initialize the workflow status
   this._status = { running: false, completed: false, aborted: false, paused: false, time_start: 0, time_end: 0 };
