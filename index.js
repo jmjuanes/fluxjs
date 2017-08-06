@@ -36,7 +36,7 @@ var workfly = function(name, wd, opt)
   this._commands = [];
 
   //Initialize the workfly options
-  this._options = Object.assign({ encoding: 'utf8', verbose: false }, (typeof wd === 'object') ? wd : opt);
+  this._opt = Object.assign({ encoding: 'utf8', verbose: false }, (typeof wd === 'object') ? wd : opt);
 
   //Initialize the workflow status
   this._status = { running: false, completed: false, aborted: false, paused: false, time_start: 0, time_end: 0 };
@@ -160,7 +160,7 @@ workfly.prototype.run = function()
     }
 
     //Initialize the files
-    return workfly_file.create(self._data.file, self._log, function(error)
+    return workfly_file.create(self._data.file, self._log, self._opt, function(error)
     {
       //Check the error
       if(error){ return self.emit('error', error); }
@@ -269,7 +269,7 @@ workfly.prototype._next = function()
   self._log.debug('$ ' + cmd_line);
 
   //Run the command
-  return workfly_cmd.run(cmd_line, self._data, self._log, self._options, function(error, cmd_out, cmd_err)
+  return workfly_cmd.run(cmd_line, self._data, self._log, self._opt, function(error, cmd_out, cmd_err)
   {
     //Check for error
     if(error)
