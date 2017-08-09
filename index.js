@@ -7,12 +7,12 @@ var util = require('util');
 var events = require('events');
 var utily = require('utily');
 
-//Import workfly libs
-var workfly_cmd = require('./lib/command.js');
-var workfly_file = require('./lib/file.js');
+//Import tinyflow libs
+var tinyflow_cmd = require('./lib/command.js');
+var tinyflow_file = require('./lib/file.js');
 
-//Initialize the workfly object
-var workfly = function(name, wd, opt)
+//Initialize the tinyflow object
+var tinyflow = function(name, wd, opt)
 {
   //Check the workflow name
   if(typeof name !== 'string'){ throw new Error('No workflow name provided'); }
@@ -35,7 +35,7 @@ var workfly = function(name, wd, opt)
   //Initialize the commands list
   this._commands = [];
 
-  //Initialize the workfly options
+  //Initialize the tinyflow options
   this._opt = Object.assign({ encoding: 'utf8', verbose: false }, (typeof wd === 'object') ? wd : opt);
 
   //Initialize the workflow status
@@ -54,11 +54,11 @@ var workfly = function(name, wd, opt)
   return this;
 };
 
-//Inherits EventEmitter to workfly
-util.inherits(workfly, events);
+//Inherits EventEmitter to tinyflow
+util.inherits(tinyflow, events);
 
 //Set a new file
-workfly.prototype.file = function(name, options)
+tinyflow.prototype.file = function(name, options)
 {
   //Initialize the file properties
   var obj = Object.assign({ path: null, ext: '.txt', content: null, delete: false }, options);
@@ -84,7 +84,7 @@ workfly.prototype.file = function(name, options)
 };
 
 //Set a binary file path
-workfly.prototype.binary = function(name, options)
+tinyflow.prototype.binary = function(name, options)
 {
   //Initialize the binary options
   var obj = Object.assign({ path: null }, options);
@@ -103,7 +103,7 @@ workfly.prototype.binary = function(name, options)
 };
 
 //Set a variable
-workfly.prototype.variable = function(key, value)
+tinyflow.prototype.variable = function(key, value)
 {
   //Save the variable
   this._data.variable[key.trim()] = value;
@@ -113,7 +113,7 @@ workfly.prototype.variable = function(key, value)
 };
 
 //Add a new command
-workfly.prototype.command = function(name, cmd)
+tinyflow.prototype.command = function(name, cmd)
 {
   //Save the command
   this._commands.push({ name: name.trim(), cmd: cmd.trim() });
@@ -123,7 +123,7 @@ workfly.prototype.command = function(name, cmd)
 };
 
 //Run the workflow
-workfly.prototype.run = function(cb)
+tinyflow.prototype.run = function(cb)
 {
   //Save this
   var self = this;
@@ -163,7 +163,7 @@ workfly.prototype.run = function(cb)
     }
 
     //Initialize the files
-    return workfly_file.create(self._data.file, self._log, self._opt, function(error)
+    return tinyflow_file.create(self._data.file, self._log, self._opt, function(error)
     {
       //Check the error
       if(error){ return self.emit('error', error); }
@@ -193,7 +193,7 @@ workfly.prototype.run = function(cb)
 };
 
 //Run the next command
-workfly.prototype._next = function()
+tinyflow.prototype._next = function()
 {
   //Save this
   var self = this;
@@ -227,7 +227,7 @@ workfly.prototype._next = function()
     self._status.running = false;
 
     //Clear the unused files
-    return workfly_file.delete(self._data.file, self._log, function(error)
+    return tinyflow_file.delete(self._data.file, self._log, function(error)
     {
       //Check the error
       if(error)
@@ -263,7 +263,7 @@ workfly.prototype._next = function()
   var cmd_name = cmd_obj.name;
 
   //Parse the command
-  var cmd_line = workfly_cmd.parse(cmd_obj.cmd, self._data, self._log);
+  var cmd_line = tinyflow_cmd.parse(cmd_obj.cmd, self._data, self._log);
 
   //Emit the command before event
   self.emit('command-before:' + cmd_name, self._index, cmd_line);
@@ -275,7 +275,7 @@ workfly.prototype._next = function()
   self._log.debug('$ ' + cmd_line);
 
   //Run the command
-  return workfly_cmd.run(cmd_line, self._data, self._log, self._opt, function(error, cmd_out, cmd_err)
+  return tinyflow_cmd.run(cmd_line, self._data, self._log, self._opt, function(error, cmd_out, cmd_err)
   {
     //Check for error
     if(error)
@@ -305,21 +305,21 @@ workfly.prototype._next = function()
 };
 
 //Abort the workflow
-workfly.prototype.abort = function()
+tinyflow.prototype.abort = function()
 {
   //Abort the workflow when the command that is running now is finished
   this._status.aborted = true;
 };
 
 //Pause the workflow
-workfly.prototype.pause = function()
+tinyflow.prototype.pause = function()
 {
   //Pause the workflow
   this._status.paused = true;
 };
 
 //Resume the workflow
-workfly.prototype.resume = function()
+tinyflow.prototype.resume = function()
 {
   //Resume the workflow
   this._status.paused = false;
@@ -341,4 +341,4 @@ workfly.prototype.resume = function()
 };
 
 //Exports to node
-module.exports = workfly;
+module.exports = tinyflow;
