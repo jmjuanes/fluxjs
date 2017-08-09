@@ -60,24 +60,35 @@ util.inherits(tinyflow, events);
 //Set a new file
 tinyflow.prototype.file = function(name, options)
 {
-  //Initialize the file properties
-  var obj = Object.assign({ path: null, ext: '.txt', content: null, delete: false }, options);
+  //Check the options
+  if(typeof options === 'string'){ options = { path: options.trim() }; }
+
+  //Check for undefined options
+  if(typeof options !== 'object'){ options = {}; }
+
+  //Initialize the file options
+  options = Object.assign({ path: null, ext: '.txt', content: null, delete: false }, options);
 
   //Check the file path
-  if(obj.path === null)
+  if(options.path === null)
   {
     //Create the new file path
-    obj.path = './' + utily.string.unique() + obj.ext;
+    options.path = './' + utily.string.unique() + options.ext;
+  }
+  else
+  {
+    //Save the path extension
+    options.ext = path.extname(options.path);
   }
 
   //Resolve the file path
-  obj.path = path.resolve(this._data.wd, obj.path);
+  options.path = path.resolve(this._data.wd, options.path);
 
   //Save the file object
-  this._data.file[name] = obj;
+  this._data.file[name] = options;
 
   //Display in logs
-  this._log.debug('Set file "' + name + '" -> ' + obj.path);
+  this._log.debug('Set file "' + name + '" -> ' + options.path);
 
   //Return this
   return this;
