@@ -1,10 +1,10 @@
 {
-  "name": "workfly",
+  "name": "tinyflow",
   "description": "",
   "version": "0.0.1",
   "author": "Josemi Juanes <josemijuanes@gmail.com>",
   "license": "MIT",
-  "repository": { "type": "git", "url": "https://github.com/jmjuanes/fluxjs.git" },
+  "repository": { "type": "git", "url": "https://github.com/jmjuanes/tinyflow.git" },
   "main": "index.js",
   "keywords": [ "workflow", "pipe", "flow", "commands", "cmd", "exec" ],
   "dependencies":
