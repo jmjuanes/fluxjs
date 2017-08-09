@@ -1,8 +1,8 @@
-//Import workfly
-var workfly = require('../index.js');
+//Import tinyflow
+var tinyflow = require('../index.js');
 
 //Initialize the new flow object
-var flow = new workfly('My flow', './', { verbose: true });
+var flow = new tinyflow('My flow', './', { verbose: true });
 
 //Add the files
 flow.file('input1', { path: './input1.txt', content: 'Hello world!!' });
