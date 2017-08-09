@@ -4,6 +4,7 @@
 
 [![npm](https://img.shields.io/npm/v/tinyflow.svg?style=flat-square)](https://www.npmjs.com/package/tinyflow)
 [![npm](https://img.shields.io/npm/dt/tinyflow.svg?style=flat-square)](https://www.npmjs.com/package/tinyflow)
+[![npm](https://img.shields.io/npm/l/tinyflow.svg?style=flat-square)](https://github.com/jmjuanes/tinyflow)
 
 
 ## Installation 
