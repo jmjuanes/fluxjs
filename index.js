@@ -47,6 +47,9 @@ var tinyflow = function(name, wd, opt)
   //Workflow logger
   this._log = new logty(this._name);
 
+  //Check if the verbose mode is disabled
+  this._log.disabled = !this._opt.verbose;
+
   //Inherit to the event emitter constructor
   events.call(this);
 
