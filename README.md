@@ -94,7 +94,37 @@ You can use the [npm scripts](https://docs.npmjs.com/misc/scripts) field in `pac
 
 ### flow.task(name\[, dependencies\], handler)
 
-Register a new task called `name`. This method is an alias of [`keue.addTask`](https://github.com/jmjuanes/keue#tasksaddtaskname-dependencies-handler).
+Register a new task called `name`. This method is an alias of [`keue.addTask`](https://github.com/jmjuanes/keue#tasksaddtaskname-dependencies-handler). 
+
+The task `dependencies` is a `string` or an `array` of `strings` with the names of the tasks that should be executed before running this task. This argument is optionally. 
+
+The task `handler` is a function that will execute the task operations. This function will be called with only one argument: a `done` function that should be called when the all the task operations are finished.
+
+```javascript
+flow.task("task0", function (done) {
+    //Do your task operations
+    //. . .
+
+    //When all the operations are finished, call the done function 
+    return done();
+});
+```
+
+If there is an error running the task operations, you can call the `done` function with an error object. After that, the error will be automatically printed in console and the flow will be aborted, so no more tasks will be executed.
+
+```javascript
+flow.task("task-async", function (done) {
+    yourAsyncFunction(arg1, ..., function (error, data) {
+        if (error) {
+            //Something went wrong running 'yourAsyncFunction', print the error and abort the tasks
+            return done(error);
+        }
+        //Continue with your operations.
+        //. . .
+        return done();
+    });
+});
+```
 
 
 ### flow.defaultTask(task)
