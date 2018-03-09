@@ -17,17 +17,22 @@ npm install --save tinyflow
 
 ## Usage
 
+Create a new file and write the tasks that you want to automatize. For example, let's create a file called `
 ```javascript
 let flow = require("tinyflow");
 
 //
 ```
 
+
+
+
 ## API 
 
 ### flow.task(name\[, dependencies\], handler)
 
-Register a new task called `name`
+Register a new task called `name`. This method is an alias of [`keue.addTask`](https://github.com/jmjuanes/keue#tasksaddtaskname-dependencies-handler).
+
 
 ### flow.defaultTask(task)
 
