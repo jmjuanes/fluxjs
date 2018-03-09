@@ -140,6 +140,11 @@ flow.error("Something went wrong...");
 ``` 
 
 
+## CLI arguments 
+
+### `--flow-tasks tasks`
+
+Define the tasks that will be executed. It also determines the order where these tasks will be executed. If this option is not used, the module will execute the tasks provided with `flow.defaultTask`.
 
 
 ## License 
