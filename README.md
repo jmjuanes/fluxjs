@@ -36,7 +36,7 @@ Register a new task called `name`. This method is an alias of [`keue.addTask`](h
 
 ### flow.defaultTask(task)
 
-Define the default task or tasks that should be runned if the script is called without the `--flow-tasks` option. The `task` argument can be a `string` with the name of the single task to execute, or an `array` of strings with the order that the tasks should be executed. Note that this order should change if any task has dependencies, so in this case the dependencies will be executed before.
+Define the default task or tasks that should be runned if the script is called without the `--flow-tasks` option. The `task` argument can be a `string` with the name of the single task to execute, or an `array` of strings with the order that the tasks should be executed. Note that this order will change if any task has dependencies, so in this case the dependencies will be executed before.
 
 ```javascript
 //Set a single default task to run
