@@ -21,4 +21,13 @@ describe("flag: --flow-tasks", function(){
         });
     });
 
+    it("display an error it a task is not defined", function(done){
+        runner("simple-script.js", ["--flow-tasks", "task3"], function(error, stdout, stderr){
+            assert.equal(error, null);
+            assert.equal(stdout.length, 0);
+            assert.equal(stderr.length, 1);
+            return done();
+        });
+    });
+
 });
