@@ -111,6 +111,36 @@ flow.defaultTask("task0");
 flow.defaultTask(["task0", "task1", "task2"]);
 ```
 
+### flow.getOption(key)
+
+Use this method to access to any argument passed to the script using a single or a double hyphenated arguments.
+
+```javascript
+// node script.js --name John
+
+let name = flow.getOption("name");
+console.log(name); // John
+```
+
+
+### flow.log(message)
+
+Print log messages in console.
+
+```javascript
+flow.log("This is a log message");
+```
+
+### flow.error(message)
+
+Print error messages in console.
+
+```javascript 
+flow.error("Something went wrong...");
+``` 
+
+
+
 
 ## License 
 
