@@ -45,11 +45,11 @@ module.exports.option = function(key) {
 
 process.nextTick(function () {
     //Check the no-colors option
-    if(typeof options["no-colors"] === "boolean") {
+    if(typeof options["flow-no-colors"] === "boolean") {
         logger.disableColors();
     }
     //Get the tasks to run
-    let list = (typeof options["tasks"] === "string") ? options["tasks"].split(",") : tasksList;
+    let list = (typeof options["flow-tasks"] === "string") ? options["tasks"].split(",") : tasksList;
     if(list.length === 0) {
         logger.error("No tasks to run");
         return logger.end();
