@@ -142,7 +142,7 @@ flow.error("Something went wrong...");
 
 ## CLI flags
 
-You can use the following flags from the command-line to change the default behavior of the tool: 
+You can use the following flags from the command-line to change the default behavior of the tool. Your custom flags can be accessed with `flow.getOption`. 
 
 #### `--flow-tasks tasks`
 
