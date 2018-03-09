@@ -9,7 +9,7 @@ let options = getArgs().options;
 
 //Tasks manager
 let tasks = new keue();
-let tasksList = []; //List of added tasks
+let tasksList = []; //List of tasks to be executed
 let taskStart = 0, taskEnd = 0; //Task timers
 tasks.on("finish", function () {
     logger.end();
@@ -31,8 +31,23 @@ tasks.on("error", function(error){
 //Add a new task
 module.exports.task = function () {
     tasks.addTask.apply(tasks, arguments);
-    tasksList.push(arguments[0]);
+    //tasksList.push(arguments[0]);
 };
+
+//Set the default task
+module.exports.defaultTask = function(list) {
+    if (typeof list === "undefined") {
+        tasksList = [];
+    }
+    else if (typeof list === "string") {
+        tasksList = [list];
+    }
+    else if (typeof list === "object" && Array.isArray(list) === true) {
+        taskList = list;
+    } else {
+        taskList = [];
+    }
+}
 
 //Print a log message in console
 module.exports.log = logger.log;
