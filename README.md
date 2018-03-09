@@ -140,11 +140,17 @@ flow.error("Something went wrong...");
 ``` 
 
 
-## CLI arguments 
+## CLI flags
 
-### `--flow-tasks tasks`
+You can use the following flags from the command-line to change the default behavior of the tool: 
+
+#### `--flow-tasks tasks`
 
 Define the tasks that will be executed. It also determines the order where these tasks will be executed. If this option is not used, the module will execute the tasks provided with `flow.defaultTask`.
+
+#### `--flow-no-colors`
+
+All logs and errors messages will be displayed without colors.
 
 
 ## License 
