@@ -17,13 +17,76 @@ npm install --save tinyflow
 
 ## Usage
 
-Create a new file and write the tasks that you want to automatize. For example, let's create a file called `
+Create a new file and write the tasks that you want to automatize. For example, let's create a file called `tasks.js`:
+
 ```javascript
 let flow = require("tinyflow");
+let fs = require("fs);
+let path = require("path");
+let sass = require("node-sass");
+let mkdirp = require("mkdirp");
+let uglify = require("uglify-js");
 
-//
+//Create the dist folder 
+flow.task("create-dist", function (done) {
+    mkdirp.sync("./dist");
+    return done();
+});
+
+//Compile SCSS files
+//First we must run the create-dist task 
+flow.task("compile-scss", ["create-dist"], function (done) {
+    let content = fs.readFileSync("./scss/style.scss", "utf8");
+    //Compile the scss files
+    return sass.render({data: content}, function (error, result) {
+        if (error) {
+            return done(error);
+        }
+        //Write the compiled scss file 
+        fs.writeFileSync("./dist/style.scss", result.css, "utf8");
+        return done();
+    });
+});
+
+//Minify JS files 
+//First we should run the create-dist task
+flow.task("minify-js", ["create-dist"], function (done) {
+    let content = fs.readFileSync("./js/index.js", "utf8");
+    let result = uglify.minify(content);
+    if (result.error) {
+        return done(result.error); 
+    }
+    fs.writeFileSync("./dist/index.js", result.code, "utf8");
+    return done();
+});
+
+//Default tasks 
+flow.defaultTask(["compile-scss", "minify-js"]);
+
 ```
 
+You can execute all tasks defined in `flow.defaultTask` by running this script with `node`: 
+
+```bash 
+$ node ./tasks.js
+```
+
+You can execute a single task by passing the option `--flow-tasks` with the task to execute: 
+`
+```bash 
+$ node ./tasks.js --flow-task compile-scss
+```
+
+You can use the [npm scripts](https://docs.npmjs.com/misc/scripts) field in `package.json` to define these commands: 
+
+```json
+{
+    "scripts": {
+        "compile-scss": "node ./tasks.js --flow-tasks compile-scss",
+        "minify-js": "node ./tasks.js --flow-tasks minify-js",
+    }
+}
+```
 
 
 
