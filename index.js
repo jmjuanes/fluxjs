@@ -49,7 +49,7 @@ process.nextTick(function () {
         logger.disableColors();
     }
     //Get the tasks to run
-    let list = (typeof options["flow-tasks"] === "string") ? options["tasks"].split(",") : tasksList;
+    let list = (typeof options["flow-tasks"] === "string") ? options["flow-tasks"].split(",") : tasksList;
     if(list.length === 0) {
         logger.error("No tasks to run");
         return logger.end();
