@@ -21,7 +21,7 @@ Create a new file and write the tasks that you want to automatize. For example, 
 
 ```javascript
 let flow = require("tinyflow");
-let fs = require("fs);
+let fs = require("fs");
 let path = require("path");
 let sass = require("node-sass");
 let mkdirp = require("mkdirp");
