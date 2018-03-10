@@ -4,8 +4,8 @@ let getArgs = require("get-args");
 //Log manager
 let logger = require("./lib/logger.js");
 
-//Parse the options
-let taskOptions = getArgs().options;
+//Parse the arguments
+let taskArgs = getArgs().options;
 
 //Tasks manager
 let tasks = new keue();
@@ -42,9 +42,9 @@ module.exports.defaultTask = function (list) {
         tasksList = [list];
     }
     else if (typeof list === "object" && Array.isArray(list) === true) {
-        taskList = list;
+        tasksList = list;
     } else {
-        taskList = [];
+        tasksList = [];
     }
 }
 
@@ -54,16 +54,16 @@ module.exports.error = logger.error;
 
 //Access to the arguments passed to the script
 module.exports.getArgument = function (key) {
-    return taskOptions[key];
+    return taskArgs[key];
 };
 
 process.nextTick(function () {
     //Check the no-colors option
-    if(typeof taskOptions["flow-no-colors"] === "boolean") {
+    if(typeof taskArgs["flow-no-colors"] === "boolean") {
         logger.disableColors();
     }
     //Get the tasks to run
-    let list = (typeof taskOptions["flow-tasks"] === "string") ? taskOptions["flow-tasks"].split(",") : tasksList;
+    let list = (typeof taskArgs["flow-tasks"] === "string") ? taskArgs["flow-tasks"].split(",") : tasksList;
     if(list.length === 0) {
         logger.error("No tasks to run");
         return logger.end();
