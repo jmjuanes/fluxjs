@@ -74,7 +74,7 @@ $ node ./tasks.js
 You can execute a single task (or a subset of tasks) by using the flag `--flow-tasks` with the task to execute (or a comma-separated list of tasks): 
 `
 ```bash 
-$ node ./tasks.js --flow-task compile-scss
+$ node ./tasks.js --flow-tasks compile-scss
 ```
 
 You can use the [npm scripts](https://docs.npmjs.com/misc/scripts) field in `package.json` to define these commands: 
