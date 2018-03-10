@@ -71,7 +71,7 @@ You can execute all tasks defined in `flow.defaultTask` by running this script w
 $ node ./tasks.js
 ```
 
-You can execute a single task by passing the option `--flow-tasks` with the task to execute: 
+You can execute a single task (or a subset of tasks) by using the flag `--flow-tasks` with the task to execute (or a comma-separated list of tasks): 
 `
 ```bash 
 $ node ./tasks.js --flow-task compile-scss
@@ -141,14 +141,14 @@ flow.defaultTask("task0");
 flow.defaultTask(["task0", "task1", "task2"]);
 ```
 
-### flow.getOption(key)
+### flow.getArgument(key)
 
 Use this method to access to any argument passed to the script using a single or a double hyphenated arguments.
 
 ```javascript
 // node script.js --name John
 
-let name = flow.getOption("name");
+let name = flow.getArgument("name");
 console.log(name); // John
 ```
 
@@ -172,11 +172,23 @@ flow.error("Something went wrong...");
 
 ## CLI flags
 
-You can use the following flags from the command-line to change the default behavior of the tool. Your custom flags can be accessed with `flow.getOption`.
+You can use the following flags from the command-line to change the default behavior of the tool. Your custom flags can be accessed with `flow.getArgument`.
 
 #### `--flow-tasks tasks`
 
 Define the tasks that will be executed. It also determines the order where these tasks will be executed. If this option is not used, the module will execute the tasks provided with `flow.defaultTask`.
+
+You can execute a single task (and all the dependencies of these task) providing the name of the task to execute: 
+
+```bash 
+$ node ./my-tasks.js --flow-tasks compile-scss
+```
+
+You can also execute multiple tasks providing a list of comma-separated tasks to execute: 
+
+```bash 
+$ node ./my-tasks.js --flow-tasks compile-css,compile-js,minify-css,minify-js
+```
 
 #### `--flow-no-colors`
 
