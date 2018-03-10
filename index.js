@@ -52,8 +52,8 @@ module.exports.defaultTask = function (list) {
 module.exports.log = logger.log;
 module.exports.error = logger.error;
 
-//Access to the options passed to the script
-module.exports.getOption = function (key) {
+//Access to the arguments passed to the script
+module.exports.getArgument = function (key) {
     return taskOptions[key];
 };
 
