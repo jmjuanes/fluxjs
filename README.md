@@ -194,6 +194,9 @@ $ node ./my-tasks.js --flow-tasks compile-css,compile-js,minify-css,minify-js
 
 All logs and errors messages will be displayed without colors.
 
+```bash
+$ node ./my-tasks.js --flow-no-colors
+```
 
 ## License 
 
