@@ -15,5 +15,5 @@ flow.task("task2", ["task0", "task1"], function (done) {
     return done();
 });
 
-flow.defaultTask("task2");
+flow.defaultTask(["task0", "task1", "task2"]);
 
